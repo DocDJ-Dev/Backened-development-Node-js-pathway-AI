@@ -7,7 +7,7 @@ Learn the backened development from begginers to advanced plus Ai development. I
 Phase 1
 
 1. Internet
-2. node js internals(HTTP, TCP?IP, DNS)
+2. node js internals
 3. http servers
 4. express
 5. routing
