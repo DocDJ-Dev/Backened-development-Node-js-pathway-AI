@@ -35,3 +35,16 @@ RULE- always prefer async; Sync is prefered for one-off scripts or startup-time 
 5 fs.appendFile(path, data, callback)- async write, add to the end; Does not overwrite
 6 fs.existsSync(path)- sync; check if file exists; commonly used at startup
 7 fs.promises- allows these function to return promises. Hence useful with async/await.
+
+## os module
+
+-Information about computer itself (physical/virtual)
+-Useful in scaling and clustering
+#keyfunctions
+os.platform()- return OS name(win32/darwin/linux)
+os.cpus()-return array, each entry per CPU core, with details
+os.totalmem()-total system memory in bytes
+os.freemem()-currently available memory in bytes
+os.homedir()-current user home folder path
+os.uptime()-how long the entire computer has been running, not just the Node js
+process.uptime()-how long the program has been running
