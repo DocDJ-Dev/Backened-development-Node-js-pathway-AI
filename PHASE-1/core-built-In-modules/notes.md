@@ -48,3 +48,25 @@ os.freemem()-currently available memory in bytes
 os.homedir()-current user home folder path
 os.uptime()-how long the entire computer has been running, not just the Node js
 process.uptime()-how long the program has been running
+
+## Events module
+
+-Event Driven Programming
+-Core Concepts=>
+event emitter class
+.emit() method
+listening methods
+-steps to create events
+-direct use vs inheritance
+-removing event listeners
+
+## process module
+
+-tell about and let control of currently running program
+#keyfunctions
+process.argv- array of infor about commandline passed when starting the current program
+process.env- object of environmental variables. Values not supposed to be in code
+process.exit()- to stop the program
+process.uptime()
+process.on('exit', callback)- event listener: clean code before exit
+process.cwd()- currently working directory but dirname is prefered
