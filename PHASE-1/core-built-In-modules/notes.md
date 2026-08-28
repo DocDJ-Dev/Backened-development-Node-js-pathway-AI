@@ -82,3 +82,5 @@ Buffer.from()
 buf.toString('utf-8')
 buf.toString('hex'): base 16 encoding
 buf.toString('base64'): base 64 encoding
+
+Buffer and Process modules pending deep dive
