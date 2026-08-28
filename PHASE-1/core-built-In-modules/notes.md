@@ -70,3 +70,15 @@ process.exit()- to stop the program
 process.uptime()
 process.on('exit', callback)- event listener: clean code before exit
 process.cwd()- currently working directory but dirname is prefered
+
+## The buffer module
+
+-handling binary data
+-bytes as basic unit of digital storage
+-buffer as fixed size chunk of of raw memory(RAM) that hold binary data, without overhead of normal javascript string handling
+-application in file uploads, database drivers, http request headers, encryption
+#key Operations
+Buffer.from()
+buf.toString('utf-8')
+buf.toString('hex'): base 16 encoding
+buf.toString('base64'): base 64 encoding
