@@ -84,3 +84,13 @@ buf.toString('hex'): base 16 encoding
 buf.toString('base64'): base 64 encoding
 
 Buffer and Process modules pending deep dive
+
+## the steams module
+
+Handling of data that flows
+1 Readable streams
+2 Writable streams
+3 Duplex streams
+4 Transform Streams
+the .pipe() operation
+streams and the http server
