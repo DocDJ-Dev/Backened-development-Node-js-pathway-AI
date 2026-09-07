@@ -14,3 +14,12 @@ The HTTP Module
 Manual Routing and URL parsing
 -URL class
 -Routing and the split method
+
+##Content negotiation: process where a client and server agree on what format.
+-Handled via the ACCEPT header
+For Browsers: Accept: text/html,application/xhtml+xml,application/xml;q=0.9,_/_;q=0.8
+For postman, typically: Accept: application/json
+#worth respecting in server
+
+##Serving Static Pages
+-they just need to be read from the dist and streamed to the client.
