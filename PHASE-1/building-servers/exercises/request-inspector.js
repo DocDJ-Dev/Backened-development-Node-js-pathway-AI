@@ -19,7 +19,7 @@ const server = http.createServer((req, res) => {
         headers,
         remoteAddress,
         encrypted,
-        timeStamp: new Date().toLocaleDateString("en-GB"),
+        timeStamp: new Date().toISOString("en-GB"),
       }),
     );
   } else {
