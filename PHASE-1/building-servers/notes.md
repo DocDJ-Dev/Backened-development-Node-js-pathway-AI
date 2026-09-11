@@ -23,3 +23,11 @@ For postman, typically: Accept: application/json
 
 ##Serving Static Pages
 -they just need to be read from the dist and streamed to the client.
+
+Disadvantages of Manual Routing
+1 Middleware chains
+2 Route grouping
+3 Error propagation
+4 Body parsing
+5 Response helpers
+##Express solves all five of these systematically
