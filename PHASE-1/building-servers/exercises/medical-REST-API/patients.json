@@ -1,0 +1,29 @@
+{
+  "nextId": 6,
+  "patients": [
+    {
+      "id": 1,
+      "name": "Desire",
+      "age": 41,
+      "diagnosis": "Type 2 DM complicated by ketoacidosis"
+    },
+    {
+      "id": 3,
+      "name": "Let",
+      "age": 19,
+      "diagnosis": "PTSD"
+    },
+    {
+      "id": 4,
+      "name": "Addlight",
+      "age": 53,
+      "diagnosis": "RHD"
+    },
+    {
+      "id": 5,
+      "name": "James",
+      "age": 23,
+      "diagnosis": "Drug and Substance induced psychosis"
+    }
+  ]
+}
