@@ -1,0 +1,24 @@
+{
+  "name": "backened-development-node-js-pathway-ai",
+  "version": "1.0.0",
+  "description": "Learn the backened development from begginers to advanced plus Ai development. Its a pathway involving node js and its frameworks.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DocDJ-Dev/Backened-development-Node-js-pathway-AI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/DocDJ-Dev/Backened-development-Node-js-pathway-AI/issues"
+  },
+  "homepage": "https://github.com/DocDJ-Dev/Backened-development-Node-js-pathway-AI#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
