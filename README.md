@@ -9,22 +9,25 @@ Phase 1
 1. Internet
 2. node js internals
 3. http servers
+
+Phase 2
+
 4. express
 5. routing
 6. middleware
 
-Phase 2-
+Phase 3
 
 7.  PostgreSQL Databases(primary) and MongoDB(secondary)
 8.  AI API fundermentals
 
-Phase 3
+Phase 4
 
 9. Auth/Security
 10. APIs done right and GraphQL
 11. RAG Systems
 
-Phase 4
+Phase 5
 
 12. testing plus advanced backened(Redis, queues, WebSockets, CI/CD)
 13. AI scribe pipeline
