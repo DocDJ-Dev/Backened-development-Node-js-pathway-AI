@@ -2,6 +2,9 @@ const express = require("express");
 // express.Router() creates a mini Express app — a self-contained collection of routes that can be mounted onto a path in app.js
 // This is exactly like  createRouter() but built into Express
 const router = express.Router();
+const validateId = require("../middleware/validateId");
+const authorize = require("../middleware/authorize");
+const auth = require("../middleware/auth");
 
 let patients = [
   { id: 1, name: "Alice Mwangi", age: 34, diagnosis: "Hypertension" },
@@ -33,15 +36,8 @@ router.get("/", (req, res) => {
 });
 
 // GET
-router.get("/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-
-  if (isNaN(id)) {
-    return res.status(400).json({
-      error: "Patient ID must be a number",
-      code: "INVALID_ID",
-    });
-  }
+router.get("/:id", validateId, (req, res) => {
+  const id = req.patientId;
 
   const patient = patients.find((p) => p.id === id);
 
@@ -57,7 +53,7 @@ router.get("/:id", (req, res) => {
 
 // POST
 // No async needed — express.json() already parsed req.body synchronously
-router.post("/", (req, res) => {
+router.post("/", auth, authorize("doctor", "admin"), (req, res) => {
   const { name, age, diagnosis } = req.body;
 
   // Validation — if statements, not try/catch (expected conditions)
@@ -86,62 +82,56 @@ router.post("/", (req, res) => {
 });
 
 // PATCH
-router.patch("/:id", (req, res) => {
-  const id = parseInt(req.params.id);
+router.patch(
+  "/:id",
+  auth,
+  authorize("doctor", "admin"),
+  validateId,
+  (req, res) => {
+    const id = req.patientId;
 
-  if (isNaN(id)) {
-    return res
-      .status(400)
-      .json({ error: "ID must be a number", code: "INVALID_ID" });
-  }
+    const index = patients.findIndex((p) => p.id === id);
 
-  const index = patients.findIndex((p) => p.id === id);
-
-  if (index === -1) {
-    return res
-      .status(404)
-      .json({ error: `Patient ${id} not found`, code: "NOT_FOUND" });
-  }
-
-  // Prevent ID from being changed
-  const { id: _removedId, ...updates } = req.body;
-  // Destructuring trick: pull out 'id' into _removedId (ignored)
-  // 'updates' now contains everything EXCEPT id
-
-  if (Object.keys(updates).length === 0) {
-    return res
-      .status(400)
-      .json({ error: "No fields to update", code: "VALIDATION_ERROR" });
-  }
-
-  if (updates.age !== undefined) {
-    if (
-      typeof updates.age !== "number" ||
-      updates.age < 0 ||
-      updates.age > 150
-    ) {
-      return res.status(400).json({
-        error: "age must be a number between 0 and 150",
-        code: "VALIDATION_ERROR",
-      });
+    if (index === -1) {
+      return res
+        .status(404)
+        .json({ error: `Patient ${id} not found`, code: "NOT_FOUND" });
     }
-  }
 
-  // Spread operator merges objects — existing fields kept, sent fields overwritten
-  patients[index] = { ...patients[index], ...updates };
+    // Prevent ID from being changed
+    const { id: _removedId, ...updates } = req.body;
+    // Destructuring trick: pull out 'id' into _removedId (ignored)
+    // 'updates' now contains everything EXCEPT id
 
-  res.json(patients[index]);
-});
+    if (Object.keys(updates).length === 0) {
+      return res
+        .status(400)
+        .json({ error: "No fields to update", code: "VALIDATION_ERROR" });
+    }
+
+    if (updates.age !== undefined) {
+      if (
+        typeof updates.age !== "number" ||
+        updates.age < 0 ||
+        updates.age > 150
+      ) {
+        return res.status(400).json({
+          error: "age must be a number between 0 and 150",
+          code: "VALIDATION_ERROR",
+        });
+      }
+    }
+
+    // Spread operator merges objects — existing fields kept, sent fields overwritten
+    patients[index] = { ...patients[index], ...updates };
+
+    res.json(patients[index]);
+  },
+);
 
 // DELETE
-router.delete("/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-
-  if (isNaN(id)) {
-    return res
-      .status(400)
-      .json({ error: "ID must be a number", code: "INVALID_ID" });
-  }
+router.delete("/:id", auth, authorize("admin"), validateId, (req, res) => {
+  const id = req.patientId;
 
   const index = patients.findIndex((p) => p.id === id);
 

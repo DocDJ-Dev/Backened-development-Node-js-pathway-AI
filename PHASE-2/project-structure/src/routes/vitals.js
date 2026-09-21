@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router({ mergeParams: true });
+const authorize = require("../middleware/authorize");
+const auth = require("../middleware/auth");
 
 // mergeParams: true is CRITICAL here
 // Without it, params from the parent route (/api/patients/:id)
@@ -11,7 +13,7 @@ const vitalsStore = {};
 // Structure: { patientId: [{ id, heartRate, bloodPressure, oxygenLevel, recordedAt }] }
 
 // POST
-router.post("/", (req, res) => {
+router.post("/", authorize("doctor", "nurse"), (req, res) => {
   const patientId = parseInt(req.params.id);
 
   if (isNaN(patientId)) {
@@ -71,7 +73,6 @@ router.get("/", (req, res) => {
   });
 });
 
-// Alert level logic reused from Topic 2
 function determineAlertLevel(heartRate, oxygenLevel) {
   if (heartRate < 30 || oxygenLevel < 85) return "codeBlue";
   if (heartRate < 40 || heartRate > 120 || oxygenLevel < 90) return "critical";

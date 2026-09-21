@@ -13,6 +13,8 @@ const vitalsRouter = require("./routes/vitals");
 const logger = require("./middleware/logger");
 const notFound = require("./middleware/notFound");
 const errorHandler = require("./middleware/errorHandler");
+const generateRequestId = require("./middleware/requestId");
+const ratelimiter = require("./middleware/ratelimiter");
 
 const app = express();
 
@@ -24,6 +26,9 @@ app.use(express.json());
 
 // 2. Parse URL-encoded bodies — for HTML form submissions extended: false means use Node's built-in querystring parser
 app.use(express.urlencoded({ extended: false }));
+
+app.use(ratelimiter);
+app.use(generateRequestId);
 
 // 3. Logger — runs on every request
 app.use(logger);
