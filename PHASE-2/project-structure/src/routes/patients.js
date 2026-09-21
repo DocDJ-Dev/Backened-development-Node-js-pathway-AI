@@ -1,47 +1,42 @@
 const express = require("express");
-const app = express();
+// express.Router() creates a mini Express app — a self-contained collection of routes that can be mounted onto a path in app.js
+// This is exactly like  createRouter() but built into Express
+const router = express.Router();
 
-// this line automatically replaces readBody() function
-// It automatically reads the request body stream, parses JSON
-// and attaches the result to req.body - for every request
-
-app.use(express.json());
-
-// In memory data
-const patients = [
+let patients = [
   { id: 1, name: "Alice Mwangi", age: 34, diagnosis: "Hypertension" },
   { id: 2, name: "James Mensah", age: 52, diagnosis: "Diabetes Type 2" },
   { id: 3, name: "Carol Osei", age: 28, diagnosis: "Asthma" },
 ];
+let nextId = 4;
 
-// ROUTES
-
-//// GET
-app.get("/api/patients", (req, res) => {
-  // req.query is automatically parsed — no Object.fromEntries() needed
+// GET
+router.get("/", (req, res) => {
   let result = [...patients];
 
+  // req.query is automatically parsed by Express
+  // No Object.fromEntries needed
   if (req.query.search) {
     result = result.filter((p) =>
       p.name.toLowerCase().includes(req.query.search.toLowerCase()),
     );
   }
 
-  // res.json() replaces entire sendJSON() helper
-  // It automatically sets Content-Type: application/json
-  // and calls JSON.stringify() and res.end()
-  res.status(200).json({ count: result.length, patients: result });
+  if (req.query.diagnosis) {
+    result = result.filter((p) =>
+      p.diagnosis.toLowerCase().includes(req.query.diagnosis.toLowerCase()),
+    );
+  }
+
+  // res.json() = Content-Type header + JSON.stringify + res.end() in one call
+  res.json({ count: result.length, patients: result });
 });
 
-// GET by id
-
-app.get("/api/patients/:id", (req, res) => {
+// GET
+router.get("/:id", (req, res) => {
   const id = parseInt(req.params.id);
 
   if (isNaN(id)) {
-    // res.status() sets the status code
-    // .json() sends the body
-    // They chain — res.status(400).json({...}) is one expression
     return res.status(400).json({
       error: "Patient ID must be a number",
       code: "INVALID_ID",
@@ -59,27 +54,28 @@ app.get("/api/patients/:id", (req, res) => {
 
   res.json(patient);
 });
-// //POST
 
-app.post("/api/patients", (req, res) => {
+// POST
+// No async needed — express.json() already parsed req.body synchronously
+router.post("/", (req, res) => {
   const { name, age, diagnosis } = req.body;
 
-  if (!name)
+  // Validation — if statements, not try/catch (expected conditions)
+  if (!name) {
     return res
       .status(400)
       .json({ error: "name is required", code: "VALIDATION_ERROR" });
+  }
 
-  if (!age || typeof age !== "number" || age < 0 || age > 150)
+  if (!age || typeof age !== "number" || age < 0 || age > 150) {
     return res.status(400).json({
       error: "age must be a number between 0 and 150",
       code: "VALIDATION_ERROR",
     });
-
-  const ids = patients.map((p) => p.id);
-  const newId = Math.max(0, ...ids) + 1;
+  }
 
   const newPatient = {
-    id: newId,
+    id: nextId++,
     name,
     age,
     diagnosis: diagnosis || "Pending assessment",
@@ -89,9 +85,8 @@ app.post("/api/patients", (req, res) => {
   res.status(201).json(newPatient);
 });
 
-// //PATCH
-
-app.patch("/api/patients/:id", (req, res) => {
+// PATCH
+router.patch("/:id", (req, res) => {
   const id = parseInt(req.params.id);
 
   if (isNaN(id)) {
@@ -108,11 +103,22 @@ app.patch("/api/patients/:id", (req, res) => {
       .json({ error: `Patient ${id} not found`, code: "NOT_FOUND" });
   }
 
-  if (req.body.age !== undefined) {
+  // Prevent ID from being changed
+  const { id: _removedId, ...updates } = req.body;
+  // Destructuring trick: pull out 'id' into _removedId (ignored)
+  // 'updates' now contains everything EXCEPT id
+
+  if (Object.keys(updates).length === 0) {
+    return res
+      .status(400)
+      .json({ error: "No fields to update", code: "VALIDATION_ERROR" });
+  }
+
+  if (updates.age !== undefined) {
     if (
-      typeof req.body.age !== "number" ||
-      req.body.age < 0 ||
-      req.body.age > 150
+      typeof updates.age !== "number" ||
+      updates.age < 0 ||
+      updates.age > 150
     ) {
       return res.status(400).json({
         error: "age must be a number between 0 and 150",
@@ -121,13 +127,14 @@ app.patch("/api/patients/:id", (req, res) => {
     }
   }
 
-  patients[index] = { ...patients[index], ...req.body, id };
+  // Spread operator merges objects — existing fields kept, sent fields overwritten
+  patients[index] = { ...patients[index], ...updates };
+
   res.json(patients[index]);
 });
 
-// //DELETE
-
-(app.delete("/api/patients/:id", (req, res) => {
+// DELETE
+router.delete("/:id", (req, res) => {
   const id = parseInt(req.params.id);
 
   if (isNaN(id)) {
@@ -145,17 +152,7 @@ app.patch("/api/patients/:id", (req, res) => {
   }
 
   const deleted = patients.splice(index, 1)[0];
-  res.json({ message: "Patient deleted", patient: deleted });
-}),
-  // 404 Catch-All
-  // must be registed last. unmatched routes reaches here
-  app.use((req, res) => {
-    res.status(404).json({
-      error: "Route not found",
-      method: req.method,
-      path: req.path,
-    });
-  }));
+  res.json({ message: "Patient deleted successfully", patient: deleted });
+});
 
-//========== START SERVER ========
-app.listen(3000, () => console.log("listening at port 3000"));
+module.exports = router;

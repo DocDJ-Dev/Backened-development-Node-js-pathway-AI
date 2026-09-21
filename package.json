@@ -19,6 +19,6 @@
   },
   "homepage": "https://github.com/DocDJ-Dev/Backened-development-Node-js-pathway-AI#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^4.22.2"
   }
 }

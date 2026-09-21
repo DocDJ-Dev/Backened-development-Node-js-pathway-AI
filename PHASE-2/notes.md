@@ -40,3 +40,17 @@
 3 res.send(data) // sends any data, auto-detects content type
 4 res.sendFile(path) // streams a file — replaces your static file server code
 5 res.redirect(url) // sends a 301/302 redirect response
+
+## Project Structure
+
+1 app.js — creates and configures the Express app, exports it
+2 server.js — imports the app and starts listening on a port
+3 routes/ — each resource has its own file
+4 middleware/ — reusable functions that run on every request
+
+-Splitting app.js from server.js is architectural. -When Testing, test files will import app.js directly and run requests against it without starting a real server. If app.listen() was inside app.js, every test file import would try to bind a port and fail.
+
+## Middleware
+
+-signature=> (req, res, next)
+-next = function called to pass control to the next middleware/route. If not called the request hangs foever
