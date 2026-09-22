@@ -54,3 +54,69 @@
 
 -signature=> (req, res, next)
 -next = function called to pass control to the next middleware/route. If not called the request hangs foever
+
+## Error Handling in Express
+
+#consequenses of getting error handling wrong
+1 server crushing (mostly due to async errors)
+2 leaking important information or internal details to clients
+3 failing silently and hiding of broken states or data in the system
+
+#Centralising error handling in one middleware
+1 consistence interms of format
+2 reduce duplications
+3 error handling is not missed in some routes
+
+#Synchronous Errors
+-automatically handled by express internals
+-hence no server crushing
+
+#Asynchronous errors
+-no auto handling
+-try/catch should be passed manually
+
+#The next(err)
+-for redirecting errors to one place ie the middleware
+-all other middlewares in between are skipped
+
+#The Async Wrapper Pattern
+-Eliminate repetitive try/catch/next(err)
+-its a middleware async handler that takes an async function ie the route handler
+-no more need for try/catch inside route handler
+-once an error is thrown, it automatically calls next(err)
+-works fine with both sync and async errors
+
+#Custome error classes
+
+#The complete centralised error handler
+-always log the full error
+
+#Centralised Error Handler
+-Log the FULL error server-side always
+-custom errors already has statusCode and code
+-unexpected error (a real bug), default to 500
+-NEVER reveal internal error details for unexpected (non-operational) errors in production — this could leak sensitive implementation details
+-Include stack trace ONLY in development — never in production
+
+#Operational Errors vs Programmer Errors
+
+Operational errors — expected failures (are not bugs). Examples:
+1 A patient ID that doesn't exist (NotFoundError)
+2 Invalid input from a client (ValidationError)
+3 A database connection timing out
+4 A third-party API being temporarily unavailable
+5 A file that doesn't exist yet
+
+Programmer errors — actual bugs. Something in your code is wrong:
+1 Calling .toUpperCase() on undefined
+2 A typo in a variable name causing ReferenceError
+3 Passing the wrong number of arguments to a function
+4 Logic errors — like the return positioned in the wrong place bugs you've fixed multiple times in this course
+Continuing to run the application after a programmer error is dangerous — the safest thing is often to log it, alert someone, and restart the process cleanly.
+
+isOperational: true on custom error classes error handler distinguish the two.
+
+##The Last Line of Defense — Process-Level Error Handlers
+-errors thrown outside of any Express request cycle need to be caught at the process level.
+-they exit instead of trying to keep running: error may not be safe about application's state or data
+-pair this with a process manager: brief restart is invisible to users
