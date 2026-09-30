@@ -1,7 +1,5 @@
 const { TooManyRequestsError } = require("../utils/errors");
 
-const { TooManyRequestsError } = require("../utils/errors");
-
 const requestCounts = {}; // { ip: { count, windowStart } }
 const WINDOW_MS = 60000;
 const MAX_REQUESTS = 10;
@@ -31,7 +29,7 @@ function rateLimiter(req, res, next) {
     const retryAfter = Math.ceil((WINDOW_MS - elapsed) / 1000);
     throw new TooManyRequestsError(
       `Too many requests. Try again in ${retryAfter}s`,
-      retryAfter,
+      // retryAfter,
     );
   }
 
