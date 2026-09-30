@@ -40,9 +40,10 @@ class ConflictError extends AppError {
   }
 }
 
-class TooManyRequestsError extends Error {
+class TooManyRequestsError extends AppError {
   constructor(message = "Too many request") {
     super(message, 429, "RATE LIMITED");
+    this.retryAfter = retryAfter;
   }
 }
 

@@ -4,6 +4,7 @@ const authorize = require("../middleware/authorize");
 const auth = require("../middleware/auth");
 const asyncHandler = require("../utils/asyncHandler");
 const { NotFoundError, ValidationError } = require("../utils/errors");
+const validateBody = require("../middleware/validateBody");
 
 // mergeParams: true is CRITICAL here
 // Without it, params from the parent route (/api/patients/:id)
@@ -15,40 +16,47 @@ const vitalsStore = {};
 // Structure: { patientId: [{ id, heartRate, bloodPressure, oxygenLevel, recordedAt }] }
 
 // POST
-router.post("/", auth, authorize("doctor", "nurse"), (req, res) => {
-  const patientId = parseInt(req.params.id);
+router.post(
+  "/",
+  auth,
+  authorize("doctor", "nurse"),
+  validateBody("heartRate", "bloodPressure", "oxygenLevel"),
+  asyncHandler((req, res) => {
+    const patientId = parseInt(req.params.id);
 
-  if (isNaN(patientId)) {
-    throw new ValidationError("Patient ID must be a number");
-  }
+    if (isNaN(patientId)) {
+      throw new ValidationError("Patient ID must be a number");
+    }
 
-  const { heartRate, bloodPressure, oxygenLevel } = req.body;
+    const { heartRate, bloodPressure, oxygenLevel } = req.body;
 
-  if (!heartRate || !bloodPressure || !oxygenLevel) {
-    throw new ValidationError(
-      "heartRate, bloodPressure and oxygenLevel are required",
-    );
-  }
-  const alertLevel = determineAlertLevel(heartRate, oxygenLevel);
+    // if (!heartRate || !bloodPressure || !oxygenLevel) {
+    //   throw new ValidationError(
+    //     "heartRate, bloodPressure and oxygenLevel are required",
+    //   );
+    // }
+    const alertLevel = determineAlertLevel(heartRate, oxygenLevel);
 
-  const vitalsRecord = {
-    id: Date.now(),
-    heartRate,
-    bloodPressure,
-    oxygenLevel,
-    alertLevel,
-    recordedAt: new Date().toISOString(),
-  };
-  if (!vitalsStore[patientId]) vitalsStore[patientId] = [];
-  vitalsStore[patientId].push(vitalsRecord);
+    const vitalsRecord = {
+      id: Date.now(),
+      heartRate,
+      bloodPressure,
+      oxygenLevel,
+      alertLevel,
+      recordedAt: new Date().toISOString(),
+    };
+    if (!vitalsStore[patientId]) vitalsStore[patientId] = [];
+    vitalsStore[patientId].push(vitalsRecord);
 
-  res.status(201).json(vitalsRecord);
-});
+    res.status(201).json(vitalsRecord);
+  }),
+);
 
 //  GET /api/patients/:id/vitals/latest
 // MUST come BEFORE /:vitalId — specific routes before dynamic ones
 router.get(
   "/latest",
+  auth,
   asyncHandler((req, res) => {
     const patientId = parseInt(req.params.id);
     const patientVitals = vitalsStore[patientId] || [];
@@ -66,6 +74,7 @@ router.get(
 
 router.get(
   "/",
+  auth,
   asyncHandler((req, res) => {
     const patientId = parseInt(req.params.id);
     const patientVitals = [...(vitalsStore[patientId] || [])].reverse();

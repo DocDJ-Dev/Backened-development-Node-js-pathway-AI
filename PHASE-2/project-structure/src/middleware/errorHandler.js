@@ -1,7 +1,3 @@
-const dotenv = require("dotenv");
-
-result = dotenv.config();
-
 //The error handler middleware has FOUR parameters — not three
 // The extra first parameter 'err' is what makes Express recognize it as an error handler
 //Express ONLY calls this when next(err) is called from a route or middleware
@@ -13,6 +9,13 @@ function errorHandler(err, req, res, next) {
   console.error(`Message: ${err.message}`);
   console.error(`Stack: ${err.stack}`);
   console.error("=====Error====");
+
+  if (err.type === "entity.parse.failed") {
+    return res.status(400).json({
+      error: "Invalid JSON in request body",
+      code: "INVALID_JSON",
+    });
+  }
 
   // determine status code
   //   err.statusCode is a custom property set on errors
@@ -35,6 +38,10 @@ function errorHandler(err, req, res, next) {
     error: message,
     code,
   };
+
+  if (err.retryAfter) {
+    response.retryAfter = err.retryAfter;
+  }
 
   // Include validation details if present (e.g. which fields failed)
   if (err.details) {

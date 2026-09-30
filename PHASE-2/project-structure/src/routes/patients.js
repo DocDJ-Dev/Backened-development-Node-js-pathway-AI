@@ -7,6 +7,7 @@ const authorize = require("../middleware/authorize");
 const auth = require("../middleware/auth");
 const asyncHandler = require("../utils/asyncHandler");
 const { NotFoundError, ValidationError } = require("../utils/errors");
+const validateBody = require("../middleware/validateBody");
 
 let patients = [
   { id: 1, name: "Alice Mwangi", age: 34, diagnosis: "Hypertension" },
@@ -18,6 +19,7 @@ let nextId = 4;
 // GET
 router.get(
   "/",
+  auth,
   asyncHandler(async (req, res) => {
     let result = [...patients];
 
@@ -43,6 +45,7 @@ router.get(
 // GET
 router.get(
   "/:id",
+  auth,
   validateId,
   asyncHandler((req, res) => {
     const id = req.patientId;
@@ -63,15 +66,16 @@ router.post(
   "/",
   auth,
   authorize("doctor", "admin"),
+  validateBody("name", "age", "diagnosis"),
   asyncHandler((req, res) => {
     const { name, age, diagnosis } = req.body;
 
     // Validation — if statements, not try/catch (expected conditions)
-    if (!name) {
-      throw new ValidationError("name is required");
-    }
+    // if (!name) {
+    //   throw new ValidationError("name is required");
+    // }
 
-    if (!age || typeof age !== "number" || age < 0 || age > 150) {
+    if (typeof age !== "number" || age < 0 || age > 150) {
       throw new ValidationError("age must be a number between 0 and 150");
     }
 

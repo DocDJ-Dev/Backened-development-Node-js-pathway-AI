@@ -1,7 +1,4 @@
 const app = require("./src/app");
-const dotenv = require("dotenv");
-
-dotenv.config();
 
 // Catches errors thrown SYNCHRONOUSLY anywhere that nothing else caught
 

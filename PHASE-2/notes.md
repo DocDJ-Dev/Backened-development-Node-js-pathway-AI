@@ -120,3 +120,33 @@ isOperational: true on custom error classes error handler distinguish the two.
 -errors thrown outside of any Express request cycle need to be caught at the process level.
 -they exit instead of trying to keep running: error may not be safe about application's state or data
 -pair this with a process manager: brief restart is invisible to users
+
+## Middleware and routing
+
+#Built in middlewares
+-express.json({limit: '10kb'})
+-express.urlencodes({extended: false})
+#Third party middleware
+=>morgan- HTTP request logger. - dev vs combines
+=>helmet- sets security-related HTTP headers automatically. - header defends against a specific attack
+_ X-Content-Type-Options: nosniff — prevents browsers from guessing content types, blocking certain injection attacks
+_ X-Frame-Options: DENY — prevents your site from being embedded in an <iframe> on another site (defends against clickjacking — tricking users into clicking something different from what they perceive)
+_ Strict-Transport-Security — forces browsers to only connect via HTTPS
+_ X-Powered-By removal — by default Express reveals X-Powered-By: Express in every response, telling attackers exactly what framework you're running; helmet removes this
+=>cors- Cross-Origin Resource Sharing - Controls which external websites are allowed to make requests
+
+#Writing custom middleware using Factory pattern
+#Route Grouping and API Versioning Through Route Grouping
+Router-Level Middleware — Applying To A Whole Group At Once
+
+#Middleware Ordering
+
+1. Security headers — first, before anything touches the request
+2. CORS — before routes, so preflight requests are handled correctly
+3. Body parsers — before any route that reads req.body
+4. Logging — early, so every request gets logged regardless of outcome
+5. Custom global middleware (request ID, rate limiting)
+6. Authentication (if globally required)
+7. Routes
+8. 404 handler — after all real routes, catches anything unmatched
+9. Error handler — always absolutely last

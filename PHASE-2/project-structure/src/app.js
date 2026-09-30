@@ -6,20 +6,26 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 // Import routes
-const patientsRouter = require("./routes/patients");
-const vitalsRouter = require("./routes/vitals");
+// const patientsRouter = require("./routes/patients");
+// const vitalsRouter = require("./routes/vitals");
+const routes = require("./routes/index");
 
 // Import middleware
-const logger = require("./middleware/logger");
 const notFound = require("./middleware/notFound");
 const errorHandler = require("./middleware/errorHandler");
 const generateRequestId = require("./middleware/requestId");
 const ratelimiter = require("./middleware/ratelimiter");
+const morgan = require("morgan");
+const helmet = require("helmet");
+const cors = require("cors");
 
 const app = express();
 
 // GLOBAL MIDDLEWARE
 // These runs on every request, in the order registered
+
+app.use(helmet());
+app.use(cors());
 
 // Parse JSON bodies — must come before routes that use req.body
 app.use(express.json());
@@ -27,20 +33,19 @@ app.use(express.json());
 // 2. Parse URL-encoded bodies — for HTML form submissions extended: false means use Node's built-in querystring parser
 app.use(express.urlencoded({ extended: false }));
 
-app.use(ratelimiter);
-app.use(generateRequestId);
+app.use(morgan("combined"));
 
-// 3. Logger — runs on every request
-app.use(logger);
+app.use(generateRequestId);
+app.use(ratelimiter);
 
 // ROUTES
 // Mount routers at specific paths
 // Every route inside patientsRouter is now prefixed with /api/patients
-app.use("/api/patients", patientsRouter);
+// app.use("/api/patients", patientsRouter);
 
 // Mount vitals router under patients — the :id param comes from patientsRouter
-app.use("/api/patients/:id/vitals", vitalsRouter);
-
+// app.use("/api/patients/:id/vitals", vitalsRouter);
+app.use("/api", routes);
 // FALLBACK MIDDLEWARE
 // These must come AFTER all routes
 // 404 — runs when no route matched
